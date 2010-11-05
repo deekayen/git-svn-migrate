@@ -44,9 +44,33 @@ NAME
 \n\t--ignore-file=<filename>, --ignore-file <filename>
 \n\t\tThe location of a .gitignore file to add to all repositories.
 \n
+\n\t-T=<trunk_subdir>, -T <trunk_subdir>
+\n\t--trunk=<trunk_subdir>, --trunk <trunk_subdir>
+\n\t-t=<tags_subdir>, -t <tags_subdir>
+\n\t--tags=<tags_subdir>, --tags <tags_subdir>
+\n\t-b=<branches_subdir>, -b <branches_subdir>
+\n\t--branches=<branches_subdir>, --branches <branches_subdir>
+\n\t\tThese are optional command-line options for init.
+\n\t\tgit svn --help for more info.
+\n
 \n\t--no-minimize-url
 \n\t\tPass the "--no-minimize-url" parameter to git-svn. See
 \n\t\tgit svn --help for more info.
+\n
+\n\t--no-metadata
+\n\t\tPass the "--no-metadata" parameter to git-svn.
+\n\t\tThis option is NOT recommended as it makes it difficult to
+\n\t\ttrack down old references to SVN revision numbers in existing
+\n\t\tdocumentation, bug reports and archives. If you plan to
+\n\t\teventually migrate from SVN to git and are certain about
+\n\t\tdropping SVN history, consider git-filter-branch(1) instead.
+\n\t\tSee git svn --help for more info.
+\n
+\n\t--use-svm-props
+\n\t\tSee git svn --help for more info.
+\n
+\n\t--use-svnsync-props
+\n\t\tSee git svn --help for more info.
 \n
 \nBASIC EXAMPLES
 \n\t# Use the long parameter names
@@ -101,15 +125,24 @@ until [[ -z "$1" ]]; do
   esac
 
   case $parameter in
-    u )               url_file=$value;;
-    url-file )        url_file=$value;;
-    a )               authors_file=$value;;
-    authors-file )    authors_file=$value;;
-    d )               destination=$value;;
-    destination )     destination=$value;;
-    i )               ignore_file=$value;;
-    ignore-file )     ignore_file=$value;;
-    no-minimize-url ) gitsvn_params="$gitsvn_params --no-minimize-url";;
+    u )                url_file=$value;;
+    url-file )         url_file=$value;;
+    a )                authors_file=$value;;
+    authors-file )     authors_file=$value;;
+    d )                destination=$value;;
+    destination )      destination=$value;;
+    i )                ignore_file=$value;;
+    ignore-file )      ignore_file=$value;;
+    T )                gitsvn_params="$gitsvn_params --trunk=$value";;
+    trunk )            gitsvn_params="$gitsvn_params --trunk=$value";;
+    t )                gitsvn_params="$gitsvn_params --tags=$value";;
+    tags )             gitsvn_params="$gitsvn_params --tags=$value";;
+    b )                gitsvn_params="$gitsvn_params --branches=$value";;
+    branches )         gitsvn_params="$gitsvn_params --branches=$value";;
+    no-minimize-url )  gitsvn_params="$gitsvn_params --no-minimize-url";;
+    no-metadata )      gitsvn_params="$gitsvn_params --no-metadata";;
+    use-svm-props )    gitsvn_params="$gitsvn_params --use-svm-props";;
+    use-svnsync-props) gitsvn_params="$gitsvn_params --use-svnsync-props";;
 
     h )               echo $help | less >&2; exit;;
     help )            echo $help | less >&2; exit;;
@@ -173,10 +206,11 @@ do
 
   # Clone the original Subversion repository to a temp repository.
   cd $pwd;
-  git svn clone $url --no-metadata -A $authors_file --authors-prog=./svn-lookup-author.sh --stdlayout --quiet $gitsvn_params $tmp_destination;
+  echo "Cloning \"$name\" repository..." >&2;
+  git svn clone $url -A $authors_file --authors-prog=./svn-lookup-author.sh --stdlayout --quiet --quiet $gitsvn_params $tmp_destination;
 
   # Create .gitignore file.
-  echo "Converting svn:ignore properties into .gitignore." >&2;
+  echo "Converting \"$name\" svn:ignore properties into .gitignore..." >&2;
   if [[ $ignore_file != '' ]]; then
     cp $ignore_file $tmp_destination/.gitignore;
   fi
@@ -187,11 +221,20 @@ do
 
   # Push to final bare repository and remove temp repository.
   git remote add bare $destination/$name.git;
+  git config --unset remote.bare.fetch
   git config remote.bare.push 'refs/remotes/*:refs/heads/*';
   git push bare;
   # Push the .gitignore commit that resides on master.
   git push bare master:trunk;
+
+  # Copy the svn metadata directory to the bare version, if it exists.
+#  if [[ -f $tmp_destination/.git/svn/.metadata ]]; then
+#    echo "Moving svn metadata to the bare version..." >&2;
+#    mv $tmp_destination/.git/svn $destination/$name.git/
+#  fi
+
   cd $pwd;
+  echo "Removing \"$name\" temporary git-svn clone..." >&2;
   rm -r $tmp_destination;
 
   # Rename Subversion's "trunk" branch to Git's standard "master" branch.
@@ -206,10 +249,11 @@ do
   done
 
   # Convert git-svn tag branches to proper tags.
+  echo "Converting \"$name\" git-svn branches to proper tags..." >&2;
   git for-each-ref --format='%(refname)' refs/heads/tags | cut -d / -f 4 |
   while read ref
   do
-    git tag -a "$ref" -m "Convert \"$ref\" to proper git tag." "refs/heads/tags/$ref";
+    git tag -a "$ref" -m "Convert \"$ref\" to a proper git tag." "refs/heads/tags/$ref";
     git branch -D "tags/$ref";
   done
 done < $url_file

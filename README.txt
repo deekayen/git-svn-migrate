@@ -2,7 +2,9 @@ ABOUT git-svn-migrate
 ---------------------
 
 The git-svn-migrate project is a set of helper scripts to ease the migration of
-Subversion repositories to Git.
+Subversion repositories to Git. This version differs from the original by John
+Albin Wilkins, because it does not default to omission of SVN metadata, though
+it retains that option in the allowed parameters.
 
 The basic steps to converting a list of Subversion repositories into Git
 repositories are the following:
@@ -13,10 +15,10 @@ repositories are the following:
    Run:
    ./fetch-svn-author.sh  --url-file=[filename] > [output file for raw authors]
 
-   And then edit the raw list of Subverions usernames to provide full names and
+   Then edit the raw list of Subversion usernames to provide full names and
    emails suitable for Git committers.
 
-3. Convert the Subverion repositories into bare Git repositories with:
+3. Convert the Subversion repositories into bare Git repositories with:
    ./git-svn-migrate.sh --url-file=[filename] --authors-file=[filename] [destination folder]
 
 
@@ -34,7 +36,7 @@ repository's URL by itself:
   https://example.com/svn/evilProject
 
 With this format the name of the project is assumed to be the last part of the
-URL. So these repostitories would be converted into awesomeProject.git,
+URL. So these repositories would be converted into awesomeProject.git,
 secretProject.git and evilProject.git, respectively.
 
 If the project name of your repository is not the last part of the URL, or you
@@ -62,7 +64,7 @@ Example (assuming your repository list is in "repository-list.txt"):
 
   $ ./fetch-svn-author.sh --url-file=repository-list.txt > author-transform.txt
 
-Edit the raw list of Subverions usernames to provide full names and emails suitable for Git committers. The output of the fetch-svn-author.sh script will be of the
+Edit the raw list of Subversion usernames to provide full names and emails suitable for Git committers. The output of the fetch-svn-author.sh script will be of the
 form:
   username = username <username>
 You should edit each line to be:
@@ -77,7 +79,7 @@ For example:
 You can run "./fetch-svn-author.sh --help" to get full documentation on the
 options it accepts.
 
-3. Convert the Subverion repositories into bare Git repositories.
+3. Convert the Subversion repositories into bare Git repositories.
 
 Example:
 
@@ -85,6 +87,10 @@ Example:
 
 NOTE: Due to a minor bug/limitation, you'll need to run the script from within
 the folder containing the git-svn-migrate.sh script.
+
+The default configuration expects a format of directories trunk, branches, and
+tags in the base of each SVN location. To override the standard layout, you
+can define the trunk, branches, and tags locations.
 
 You can run "./git-svn-migrate.sh --help" to get full documentation on the
 options it accepts.
