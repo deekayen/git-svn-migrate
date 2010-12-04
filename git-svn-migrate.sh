@@ -197,7 +197,7 @@ do
   echo >&2;
   echo "At $(date)..." >&2;
   echo "Processing \"$name\" repository at $url..." >&2;
-  echo "Description: $description" >&2;
+  echo "Description: $name" >&2;
 
   # Init the final bare repository.
   mkdir $destination/$name.git;
