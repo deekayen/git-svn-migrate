@@ -197,6 +197,7 @@ do
   echo >&2;
   echo "At $(date)..." >&2;
   echo "Processing \"$name\" repository at $url..." >&2;
+  echo "Description: $description" >&2;
 
   # Init the final bare repository.
   mkdir $destination/$name.git;
@@ -239,6 +240,7 @@ do
 
   # Rename Subversion's "trunk" branch to Git's standard "master" branch.
   cd $destination/$name.git;
+  echo $name > description;
   git branch -m trunk master;
 
   # Remove bogus branches of the form "name@REV".
@@ -256,4 +258,7 @@ do
     git tag -a "$ref" -m "Convert \"$ref\" to a proper git tag." "refs/heads/tags/$ref";
     git branch -D "tags/$ref";
   done
+
+  # Since the benefits of aggressive gc are supposed to be persistent, let's start with it that way.
+  git gc --aggressive
 done < $url_file
