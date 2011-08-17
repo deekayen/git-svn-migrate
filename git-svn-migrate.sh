@@ -1,9 +1,10 @@
-#!/bin/sh
+#!/bin/bash
 
 # Copyright 2010 John Albin Wilkins.
 # Available under the GPL v2 license. See LICENSE.txt.
 
 script=`basename $0`;
+dir=`pwd`/`dirname $0`;
 usage=$(cat <<EOF_USAGE
 USAGE: $script --url-file=<filename> --authors-file=<filename> [destination folder]
 \n
@@ -144,10 +145,10 @@ until [[ -z "$1" ]]; do
     use-svm-props )    gitsvn_params="$gitsvn_params --use-svm-props";;
     use-svnsync-props) gitsvn_params="$gitsvn_params --use-svnsync-props";;
 
-    h )               echo $help | less >&2; exit;;
-    help )            echo $help | less >&2; exit;;
+    h )               echo -e $help | less >&2; exit;;
+    help )            echo -e $help | less >&2; exit;;
 
-    * )               echo "Unknown option: $option\n$usage" >&2; exit 1;;
+    * )               echo "Unknown option: $option" >&2; echo -e $usage >&2; exit 1;;
   esac
 
   # Remove the processed parameter.
@@ -156,18 +157,18 @@ done
 
 # Check for required parameters.
 if [[ $url_file == '' || $authors_file == '' ]]; then
-  echo $usage >&2;
+  echo -e $usage >&2;
   exit 1;
 fi
 # Check for valid files.
 if [[ ! -f $url_file ]]; then
   echo "Specified URL file \"$url_file\" does not exist or is not a file." >&2;
-  echo $usage >&2;
+  echo -e $usage >&2;
   exit 1;
 fi
 if [[ ! -f $authors_file ]]; then
   echo "Specified authors file \"$authors_file\" does not exist or is not a file." >&2;
-  echo $usage >&2;
+  echo -e $usage >&2;
   exit 1;
 fi
 
@@ -208,7 +209,7 @@ do
   # Clone the original Subversion repository to a temp repository.
   cd $pwd;
   echo "Cloning \"$name\" repository..." >&2;
-  git svn clone $url -A $authors_file --authors-prog=./svn-lookup-author.sh --stdlayout --quiet --quiet $gitsvn_params $tmp_destination;
+  git svn clone $url -A $authors_file --authors-prog=$dir/svn-lookup-author.sh --stdlayout --quiet $gitsvn_params $tmp_destination;
 
   # Create .gitignore file.
   echo "Converting \"$name\" svn:ignore properties into .gitignore..." >&2;
