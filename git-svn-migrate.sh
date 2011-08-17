@@ -148,7 +148,7 @@ until [[ -z "$1" ]]; do
     h )               echo -e $help | less >&2; exit;;
     help )            echo -e $help | less >&2; exit;;
 
-    * )               echo "Unknown option: $option\n$usage" >&2; exit 1;;
+    * )               echo "Unknown option: $option" >&2; echo -e $usage >&2; exit 1;;
   esac
 
   # Remove the processed parameter.
@@ -157,18 +157,18 @@ done
 
 # Check for required parameters.
 if [[ $url_file == '' || $authors_file == '' ]]; then
-  echo $usage >&2;
+  echo -e $usage >&2;
   exit 1;
 fi
 # Check for valid files.
 if [[ ! -f $url_file ]]; then
   echo "Specified URL file \"$url_file\" does not exist or is not a file." >&2;
-  echo $usage >&2;
+  echo -e $usage >&2;
   exit 1;
 fi
 if [[ ! -f $authors_file ]]; then
   echo "Specified authors file \"$authors_file\" does not exist or is not a file." >&2;
-  echo $usage >&2;
+  echo -e $usage >&2;
   exit 1;
 fi
 
