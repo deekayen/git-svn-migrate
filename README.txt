@@ -85,9 +85,6 @@ Example:
 
   $ ./git-svn-migrate.sh --url-file=repository-list.txt --authors-file=author-transform.txt /var/git
 
-NOTE: Due to a minor bug/limitation, you'll need to run the script from within
-the folder containing the git-svn-migrate.sh script.
-
 The default configuration expects a format of directories trunk, branches, and
 tags in the base of each SVN location. To override the standard layout, you
 can define the trunk, branches, and tags locations.
