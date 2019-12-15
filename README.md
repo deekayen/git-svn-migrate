@@ -1,5 +1,7 @@
-ABOUT git-svn-migrate
----------------------
+git-svn-migrate
+===============
+
+[![Project Status: Unsupported – The project has reached a stable, usable state but the author(s) have ceased all work on it. A new maintainer may be desired.](https://www.repostatus.org/badges/latest/unsupported.svg)](https://www.repostatus.org/#unsupported)
 
 The git-svn-migrate project is a set of helper scripts to ease the migration of
 Subversion repositories to Git. This version differs from the original by John
